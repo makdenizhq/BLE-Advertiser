@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tx_power_options">
+        <item>Yüksek</item>
+        <item>Orta</item>
+        <item>Düşük</item>
+        <item>Çok Düşük</item>
+    </string-array>
+
+    <string-array name="adv_mode_options">
+        <item>Hızlı (100ms)</item>
+        <item>Dengeli (250ms)</item>
+        <item>Yavaş (1s)</item>
+    </string-array>
+
+    <string-array name="relationship_options_for_qr">
+        <item>Eş</item>
+        <item>Çocuk</item>
+        <item>Anne/Baba</item>
+        <item>Kardeş</item>
+        <item>Misafir</item>
+        <item>Diğer</item>
+    </string-array>
+</resources>

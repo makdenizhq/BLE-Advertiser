@@ -4,116 +4,50 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
+    android:padding="16dp"
     tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Gizli BLE Kimlik Yayınlayıcı"
+        android:text="Kurulum"
         android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <EditText
-        android:id="@+id/etName"
+    <TextView
+        android:id="@+id/tvInstructions"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Kimlik (ör: Ahmet)"
-        android:inputType="textPersonName"
-        android:maxLength="20"
+        android:text="Otomatik yayın özelliğini kullanmak için, yayın yapılacak ana konumda (örneğin evinizin önünde) butona basarak coğrafi alanı kaydedin."
+        android:textAlignment="center"
+        android:layout_marginTop="32dp"
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
-
-    <EditText
-        android:id="@+id/etMessage"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Özel mesaj (ör: 05551234567)"
-        android:inputType="text"
-        android:maxLength="30"
-        app:layout_constraintTop_toBottomOf="@id/etName"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
-
-    <EditText
-        android:id="@+id/etFixedKey"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Sabit Anahtar (32 karakter)"
-        android:text="BuBenim32ByteGizliAnahtar1234567"
-        android:maxLength="32"
-        app:layout_constraintTop_toBottomOf="@id/etMessage"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp" />
-
-    <Switch
-        android:id="@+id/switchDailyKey"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Günlük Değişen Anahtar Kullan"
-        app:layout_constraintTop_toBottomOf="@id/etFixedKey"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <Button
-        android:id="@+id/btnShareQr"
+        android:id="@+id/btnSetGeofence"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Anahtarı QR Olarak Paylaş"
-        app:layout_constraintTop_toBottomOf="@id/switchDailyKey"
+        android:text="Coğrafi Alanı Ayarla ve Devam Et"
+        android:layout_marginTop="32dp"
+        app:layout_constraintTop_toBottomOf="@id/tvInstructions"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp" />
-
-    <Button
-        android:id="@+id/btnStart"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Yayını Başlat"
-        android:backgroundTint="#4CAF50"
-        app:layout_constraintTop_toBottomOf="@id/btnShareQr"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
-
-    <Button
-        android:id="@+id/btnStop"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Yayını Durdur"
-        android:backgroundTint="#F44336"
-        app:layout_constraintTop_toBottomOf="@id/btnStart"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/tvStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Durum: Hazır"
-        android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@id/btnStop"
+        android:text="Durum: Henüz ayarlanmadı"
+        android:textSize="16sp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintTop_toBottomOf="@id/btnSetGeofence"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
-
-    <ImageView
-        android:id="@+id/ivQr"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/tvStatus"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
