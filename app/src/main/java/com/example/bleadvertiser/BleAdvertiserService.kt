@@ -1,6 +1,7 @@
 package com.example.bleadvertiser
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -11,10 +12,10 @@ import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.bluetooth.le.BluetoothLeAdvertiser
-import android.content.Context
+
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
+
 import android.os.IBinder
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -67,6 +68,7 @@ class BleAdvertiserService : Service() {
         return START_STICKY
     }
 
+    @SuppressLint("MissingPermission") // İzin kontrolü zaten yapılıyor
     private fun startAdvertising(encryptedData: ByteArray, mode: Int, txPower: Int) {
         if (advertiser == null) return
 
@@ -81,6 +83,7 @@ class BleAdvertiserService : Service() {
             .addManufacturerData(mfgId, payload)
             .build()
 
+        // Bu kontrol zaten yapılıyor, ancak IDE uyarısını gidermek için @SuppressLint kullanıldı
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED) {
             return
         }
@@ -110,15 +113,14 @@ class BleAdvertiserService : Service() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val serviceChannel = NotificationChannel(channelId, "BLE Advertiser Service", NotificationManager.IMPORTANCE_DEFAULT)
-            val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            manager.createNotificationChannel(serviceChannel)
-        }
+        // minSdk >= 26 olduğu için SDK_INT kontrolü gereksiz
+        val serviceChannel = NotificationChannel(channelId, "BLE Advertiser Service", NotificationManager.IMPORTANCE_DEFAULT)
+        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        manager.createNotificationChannel(serviceChannel)
     }
 
     private fun createNotification(contentText: String): Notification {
-        val notificationIntent = Intent(this, AdvertisingActivity::class.java)
+        val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
         return NotificationCompat.Builder(this, channelId).setContentTitle("BLE Advertiser").setContentText(contentText).setSmallIcon(android.R.drawable.stat_sys_data_bluetooth).setContentIntent(pendingIntent).build()
     }

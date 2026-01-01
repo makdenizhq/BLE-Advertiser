@@ -1,0 +1,87 @@
+<resources>
+    <string name="app_name">BLE Advertiser</string>
+
+    <!-- Genel Hatalar ve İzinler -->
+    <string name="error_permissions_required">Tüm izinler uygulamanın doğru çalışması için gereklidir.</string>
+    <string name="camera_permission_denied">Kamera izni reddedildi.</string>
+
+    <!-- SetupFragment -->
+    <string name="setup_title">Kimlik Kurulumu</string>
+    <string name="setup_subtitle">Lütfen uygulamayı kullanmak için kimliğinizi ve rolünüzü belirtin.</string>
+    <string name="setup_name_hint">Ad Soyad</string>
+    <string name="setup_apartment_hint">Daire Numaranız</string>
+    <string name="setup_button_save">Kaydet ve Devam Et</string>
+    <string name="setup_error_empty_fields">Ad ve Daire alanları boş bırakılamaz.</string>
+
+    <!-- ResidentFragment -->
+    <string name="resident_title">Resident Kontrol Paneli</string>
+    <string name="resident_info_format">Ad: %1$s\nDaire: %2$s</string>
+    <string name="resident_signal_id_hint">Sinyal ID (6 hane)</string>
+    <string name="resident_button_save_qr">Kimliği Kaydet ve QR Üret</string>
+    <string name="resident_qr_share_button">QR Paylaş</string>
+    <string name="resident_error_signal_id_length">Sinyal ID 6 hane olmalıdır.</string>
+    <string name="resident_qr_success">Sinyal ID kaydedildi ve QR kodu üretildi.</string>
+    <string name="resident_qr_fail">QR Kodu oluşturulurken hata oluştu.</string>
+    <string name="resident_error_no_key">Lütfen önce Sinyal ID\'yi kaydedip QR üretin.</string>
+    <string name="resident_broadcast_started">Yayın başlatıldı.</string>
+    <string name="resident_broadcast_stopped">Yayın durduruldu.</string>
+    <string name="resident_current_power">Geçerli Güç: %1$s</string>
+    <string name="resident_current_period">Geçerli Periyot: %1$s</string>
+    <string name="resident_geofence_set_success">Coğrafi alan otomatik olarak kuruldu.</string>
+    <string name="resident_geofence_reset_success">Coğrafi alan sıfırlandı. Yeni konum aranıyor.</string>
+    <string name="resident_geofence_reset_fail">Sıfırlama başarısız.</string>
+
+    <!-- OwnerFragment -->
+    <string name="owner_title">Owner Kontrol Paneli</string>
+    <string name="owner_info_format">Ad: %1$s\nDaire: %2$s</string>
+    <string name="owner_token_hint">Owner Token</string>
+    <string name="owner_button_save_token">Token\'ı Kaydet</string>
+    <string name="owner_button_delete_token">Token\'ı Sil</string>
+    <string name="owner_scope_title">Yetkili Daireler</string>
+    <string name="owner_button_scan_qr">Resident QR Kodu Tara</string>
+    <string name="owner_token_saved">Token kaydedildi.</string>
+    <string name="owner_token_invalid">Geçersiz veya hatalı token!</string>
+    <string name="owner_token_fail">Token doğrulanamadı!</string>
+    <string name="owner_token_required_warning">Resident eklemek için geçerli bir Owner Token girmeniz zorunludur.</string>
+    <string name="owner_token_scan_locked_button">Token QR Kodu Tara</string>
+    <string name="owner_token_load_file_locked_button">Token Dosyadan Yükle</string>
+    <string name="owner_token_required_title">Token Gerekli</string>
+    <string name="owner_token_required_message">Bu cihazı bir Owner olarak kullanmak için lütfen sistem yöneticisinden aldığınız Owner Token\'ı yükleyin.</string>
+
+
+    <!-- QrScannerFragment -->
+    <string name="qr_scanner_title">QR Kod Tara</string>
+    <string name="qr_scanner_helper_text">Lütfen QR kodunu kameraya gösterin</string>
+    <string name="qr_code_scanned">QR Kodu Okundu!</string>
+
+    <!-- ProvisioningFragment -->
+    <string name="provisioning_title">Resident Kaydı</string>
+    <string name="provisioning_resident_info_format">Ad: %1$s\nDaire: %2$s\nYakınlık: %3$s</string>
+    <string name="provisioning_invalid_qr">Geçersiz QR Kodu</string>
+    <string name="provisioning_devices_title">Yakındaki Cihazlar</string>
+    <string name="provisioning_button_provision">Seçili Cihaza Kaydı Aktar</string>
+    <string name="provisioning_connecting_to_device">%1$s cihazına bağlanılıyor...</string>
+    <string name="provisioning_connection_lost">Bağlantı kesildi.</string>
+    <string name="provisioning_service_not_found">Gerekli servis bulunamadı!</string>
+    <string name="provisioning_write_success">Kayıt başarıyla gönderildi!</string>
+    <string name="provisioning_write_fail">Kayıt gönderilemedi! Hata: %1$d</string>
+    <string name="provisioning_token_not_found">Owner Token bulunamadı!</string>
+    <string name="provisioning_unauthorized_apartment">Yetkiniz dışı bir daire için işlem yapamazsınız!</string>
+    <string name="unknown_device">Bilinmeyen Cihaz</string>
+
+    <!-- GeofenceBroadcastReceiver -->
+    <string name="geofence_enter_title">Coğrafi Alan Algılandı</string>
+    <string name="geofence_enter_message">BLE yayını 3 dakikalığına başlatıldı.</string>
+    <string name="geofence_exit_title">Yayın Durduruldu</string>
+    <string name="geofence_exit_message">3 dakikalık otomatik yayın sona erdi.</string>
+
+    <!-- GPS Durumları -->
+    <string name="status_geofence_set_before">Durum: Coğrafi alan daha önce kaydedilmiş.</string>
+    <string name="status_searching_location">Durum: Konum aranıyor...</string>
+    <string name="status_improving_accuracy">Durum: Daha iyi doğruluk için bekleniyor...</string>
+    <string name="status_location_saved">Durum: Konum yüksek doğrulukla kaydedildi!</string>
+    <string name="status_geofence_failed">Durum: Coğrafi alan kurulamadı.</string>
+    <string name="status_permissions_denied">Durum: İzinler reddedildi.</string>
+    <string name="accuracy_format">Doğruluk: %.1fm</string>
+
+</resources>

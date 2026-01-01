@@ -1,5 +1,6 @@
 package com.example.bleadvertiser
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -9,7 +10,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import java.security.MessageDigest
+
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
@@ -34,6 +35,7 @@ class BroadcastActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun startBroadcast() {
         val apartment = etApartment.text.toString()
         val password = etPassword.text.toString()
@@ -64,6 +66,7 @@ class BroadcastActivity : AppCompatActivity() {
         }, 3 * 60 * 1000)
     }
 
+    @SuppressLint("GetInstance")
     private fun encryptData(text: String): ByteArray {
         val key = "BuBenim32ByteGizliAnahtar1234567".toByteArray(Charsets.UTF_8).copyOf(32)
         val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")

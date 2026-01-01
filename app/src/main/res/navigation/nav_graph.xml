@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/setupFragment">
+
+    <fragment
+        android:id="@+id/setupFragment"
+        android:name="com.example.bleadvertiser.SetupFragment"
+        android:label="Kurulum"
+        tools:layout="@layout/fragment_setup">
+        <action
+            android:id="@+id/action_setupFragment_to_residentFragment"
+            app:destination="@id/residentFragment"/>
+        <action
+            android:id="@+id/action_setupFragment_to_ownerFragment"
+            app:destination="@id/ownerFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/residentFragment"
+        android:name="com.example.bleadvertiser.ResidentFragment"
+        android:label="Resident Kontrol Paneli"
+        tools:layout="@layout/fragment_resident" />
+
+    <fragment
+        android:id="@+id/ownerFragment"
+        android:name="com.example.bleadvertiser.OwnerFragment"
+        android:label="Owner Kontrol Paneli"
+        tools:layout="@layout/fragment_owner">
+        <action
+            android:id="@+id/action_ownerFragment_to_qrScannerFragment"
+            app:destination="@id/qrScannerFragment" />
+        <action
+            android:id="@+id/action_ownerFragment_to_provisioningFragment"
+            app:destination="@id/provisioningFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/qrScannerFragment"
+        android:name="com.example.bleadvertiser.QrScannerFragment"
+        android:label="QR Kod Tara"
+        tools:layout="@layout/fragment_qr_scanner"/>
+
+    <fragment
+        android:id="@+id/provisioningFragment"
+        android:name="com.example.bleadvertiser.ProvisioningFragment"
+        android:label="Cihaz Yönetimi"
+        tools:layout="@layout/fragment_provisioning">
+        <argument
+            android:name="qrData"
+            app:argType="string" />
+    </fragment>
+
+</navigation>

@@ -1,50 +1,68 @@
-# Otomatik BLE Yayınlayıcı Uygulaması
+# Rol Bazlı BLE Yönetim ve Yayın Uygulaması
 
-Bu Android uygulaması, coğrafi alana duyarlı (geofence) ve manuel olarak kontrol edilebilen, kişiye özel şifrelenmiş BLE (Bluetooth Low Energy) sinyalleri yayınlamak için tasarlanmıştır.
+Bu Android uygulaması, `OWNER` ve `RESIDENT` olmak üzere iki farklı rolde çalışabilen, gelişmiş bir BLE (Bluetooth Low Energy) yönetim ve yayın aracıdır. Uygulama, bir cihazın ya bir **yayıncı (Resident)** ya da bir **yönetim aracı (Owner)** olmasına olanak tanır ve bu rolü kalıcı hale getirir.
 
-Uygulama, bir kullanıcının belirli bir coğrafi alana (örneğin, evinin veya ofisinin önüne) girdiğinde otomatik olarak 3 dakikalık bir BLE yayını başlatmasını sağlar. Ayrıca, kullanıcıya istediği zaman yayını manuel olarak başlatma ve durdurma imkanı sunar.
+Uygulama, tek bir APK içinde iki farklı kullanıcı senaryosunu yönetir ve tamamen çevrimdışı (offline-first) çalışır.
 
-Her kullanıcı için benzersiz bir şifreleme anahtarı üretilir ve bu anahtar, kullanıcının sisteme tanıtılması için bir QR kod aracılığıyla paylaşılır.
+---
 
 ## 🚀 Temel Özellikler
 
-- **Kişiye Özel Şifreleme:** Her kullanıcı için benzersiz bir 18 karakterlik BLE yayın anahtarı üretilir. Yayınlanan veriler (Daire No, Sinyal ID) bu anahtarla AES algoritması kullanılarak şifrelenir.
-- **Dinamik Anahtar Paylaşımı:** Üretilen benzersiz anahtar, diğer kullanıcı bilgileriyle birlikte bir QR kod içinde sunulur. Bu, kullanıcıların sisteme kolayca ve güvenli bir şekilde kaydedilmesini sağlar.
-- **Otomatik Coğrafi Alan Kurulumu:** Uygulama, yüksek doğruluklu (varsayılan < 2.5m) bir GPS sinyali aldığında, coğrafi alanı (geofence) otomatik olarak kurar.
-- **Otomatik Yayın (Geofence):** Kurulan coğrafi alana girildiğinde, uygulama otomatik olarak 3 dakikalık bir BLE yayını başlatır.
-- **Manuel Yayın Kontrolü:** Coğrafi alan kurulduktan sonra aktif hale gelen "Yayınla" ve "Durdur" butonları ile kullanıcı, yayını istediği zaman manuel olarak kontrol edebilir.
-- **Canlı GPS Durum Takibi:** Ana ekrandaki bir kart, anlık GPS doğruluğunu ve durumunu kullanıcıya bildirir.
+- **Kalıcı ve Akıllı Rol Sistemi:**
+    - Uygulama açılışta, cihazda bir `OWNER_TOKEN` kayıtlı olup olmadığını kontrol eder. Varsa, cihazı bir **yönetim aracı** olarak kabul eder ve doğrudan `OwnerFragment`'ı açar.
+    - Token yoksa, `RESIDENT` kimliği olup olmadığına bakar. Varsa, `ResidentFragment`'ı açar.
+    - Hiçbir kimlik yoksa, kullanıcıyı sadece `RESIDENT` olarak kayıt olabileceği bir kurulum ekranına yönlendirir.
+- **Rol Bazlı Arayüz:** Uygulama, cihazın rolüne göre tamamen farklı bir arayüz ve işlevsellik sunar.
+- **Kişiye Özel Dinamik Anahtarlar:** Her `RESIDENT` için, sisteme ilk kayıt sırasında benzersiz, 18 karakterlik bir **BLE Yayın Anahtarı** üretilir. Tüm BLE yayınları bu kişisel anahtarla şifrelenir.
+- **Güvenli Şifreleme:** Veriler, `AES/CBC/PKCS5Padding` gibi modern ve güvenli bir şifreleme algoritması kullanılarak korunur.
+- **Token Bazlı Yetkilendirme (OWNER):**
+    - `OWNER` rolü, `HMAC` ile imzalanmış bir `OWNER_TOKEN` kullanarak çalışır.
+    - Android uygulaması token'ı **kriptografik olarak doğrulamaz**, sadece içindeki yetki listesini UI'da göstermek için ayrıştırır. **Gerçek doğrulama, komutu alan ESP32 cihazı tarafından yapılır.**
+- **Esnek Token ve QR Yükleme:** `OWNER`'lar, kendilerine atanan `OWNER_TOKEN`'ı veya bir `RESIDENT`'a ait QR kodu, hem **kamerayla tarayarak** hem de **cihazdaki bir resim dosyasından (JPEG/PNG) seçerek** uygulamaya alabilir.
+- **Çevrimdışı Cihaz Yönetimi (Provisioning):** `OWNER`, bir `RESIDENT`'ın QR kodunu aldıktan sonra, o kullanıcıyı yakındaki bir ESP32 cihazına BLE GATT üzerinden güvenli bir şekilde kaydedebilir.
+- **Otomatik ve Manuel Yayın (RESIDENT):**
+    - **Manuel:** `RESIDENT`, GPS'ten bağımsız olarak istediği zaman BLE yayınını başlatıp durdurabilir.
+    - **Otomatik (Geofence):** Yüksek doğruluklu (< 2.5m) bir GPS konumu alındığında kurulan coğrafi alana girildiğinde, uygulama otomatik olarak 3 dakikalık bir yayın başlatır.
+- **Uygulama Sıfırlama:** Kullanıcılar, ayarlar menüsünden tüm kimlik bilgilerini silerek cihazın rolünü sıfırlayabilir ve uygulamayı ilk kurulum durumuna döndürebilir.
 
-## 🛠️ Teknik Akış
+---
 
-1.  **İlk Açılış ve İzinler:** Uygulama ilk açıldığında, `ACCESS_FINE_LOCATION` ve `ACCESS_BACKGROUND_LOCATION` izinlerini ister.
-2.  **Bilgi Girişi ve Anahtar Üretimi:**
-    - Kullanıcı Daire No, Adı Soyadı, Yakınlık ve Sinyal ID gibi bilgileri girer.
-    - **"Kaydet ve QR Üret"** butonuna basıldığında:
-        - 18 karakterlik benzersiz bir **BLE Yayın Anahtarı** üretilir.
-        - Bu anahtar, girilen diğer tüm bilgilerle birlikte telefonun hafızasına (`SharedPreferences`) kaydedilir.
-        - Anahtarı ve diğer temel bilgileri içeren bir QR kod üretilip ekranda gösterilir.
-3.  **Coğrafi Alanın Kurulması:**
-    - Uygulama, GPS sinyalini dinlemeye başlar.
-    - GPS doğruluğu **2.5 metrenin** altına düştüğünde, o anki konum merkez alınarak 50 metrelik bir coğrafi alan (geofence) otomatik olarak kurulur.
-    - Bu işlem tamamlandığında, manuel "Yayınla" ve "Durdur" butonları aktif hale gelir.
-4.  **Yayın Süreci:**
-    - **Otomatik Yayın:** Cihaz, kurulan coğrafi alana girdiğinde `GeofenceBroadcastReceiver` tetiklenir. Telefon hafızasından okunan **kişiye özel BLE anahtarı** ile şifrelenmiş veri, 3 dakikalığına yayınlanır.
-    - **Manuel Yayın:** Kullanıcı "Yayınla" butonuna bastığında, yine kişiye özel anahtar ile şifrelenmiş veri, kullanıcı "Durdur" butonuna basana kadar süresiz olarak yayınlanır.
+## 🛠️ Teknik Akış ve Mimarisi
 
-## 📦 BLE Reklam Paketi Yapısı
+### 1. Kimlik ve Rol Kurulumu
+- Uygulama açıldığında `SetupFragment` arka planda çalışır ve `DataStore`'u kontrol eder.
+- Kayıtlı `OWNER_TOKEN` veya `RESIDENT` rolüne göre ilgili fragment'a yönlendirir.
+- Hiçbir kayıt yoksa, kullanıcıya `RESIDENT` olarak kimlik bilgilerini (Ad, Daire) girmesi için kurulum arayüzü gösterilir.
 
-Yayınlanan "Üreticiye Özel Veri" (Manufacturer Specific Data) paketi şu yapıdadır:
+### 2. RESIDENT Akışı
+- **Sinyal ID:** `ResidentFragment` açıldığında, 6 haneli bir Sinyal ID otomatik olarak üretilir. Kullanıcı isterse değiştirebilir.
+- **Anahtar Üretimi:** "Kimliği Kaydet ve QR Üret" butonuna basıldığında, kullanıcıya özel 18 karakterlik `BLE_KEY` üretilir ve `DataStore`'a kaydedilir.
+- **QR Kod Formatı:** Üretilen QR kod, `KEY|DAIRE|AD|YAKINLIK` formatında veri içerir.
+- **QR Paylaşımı:** Üretilen QR kodun `Bitmap`'i, bir JPEG dosyası olarak `FileProvider` aracılığıyla paylaşılır.
+- **BLE Yayını:**
+    - **Şifrelenecek Veri:** `DAİRE_NO|SİNYAL_ID`
+    - **Şifreleme:** Yukarıdaki veri, kullanıcının `BLE_KEY`'i ile `AES/CBC/PKCS5Padding` kullanılarak şifrelenir. Şifreli verinin başına 16 byte'lık bir **Initialization Vector (IV)** eklenir.
+    - **Reklam Paketi:** `[ "DOORSYS|" (8 byte) ] + [ IV (16 byte) ] + [ Şifrelenmiş Veri ]` formatında yayınlanır.
 
-- **Üretici Kimliği (MFG ID):** `0xFFFF` (Test için)
-- **Veri (Payload):**
-    - **Ön Ek (Prefix):** `"DOORSYS|"` (8 byte) - Sinyalin bu uygulamaya ait olduğunu belirtir.
-    - **Şifrelenmiş Veri:** (16 byte) - Kullanıcının Daire No ve Sinyal ID'sinin, **kişiye özel 18 karakterlik anahtar** ile AES şifrelenmiş halidir.
+### 3. OWNER Akışı
+- **Token Yönetimi:**
+    - `OwnerFragment` açıldığında, token yoksa "kilitli" bir arayüz gösterilir.
+    - Kullanıcı, kendisine verilen `OWNER_TOKEN`'ı (`DOORSYS_OWNER_TOKEN|v1|<...>`) kamerayla veya dosyadan okutarak alır.
+    - Token kaydedildikten sonra yönetim paneli aktif hale gelir.
+- **Cihaz Yönetimi (Provisioning):**
+    - `QrScannerFragment` veya dosya seçici, `RESIDENT`'ın QR kodunu okur.
+    - `ProvisioningFragment`, okunan QR verisiyle açılır.
+    - BLE taraması yaparak yakındaki ESP32 cihazlarını listeler.
+    - **GATT Write Komutu:** Yetki kontrolünden sonra, aşağıdaki komut ESP32'ye yazılır:
+      `ADD_RESIDENT|OWNER_TOKEN|QR_DATA`
 
-## 🔧 Projeyi Derleme
-
-1.  Bu repoyu klonlayın.
-2.  Projeyi Android Studio'da açın.
-3.  Gerekli SDK ve araçların yüklü olduğundan emin olun.
-4.  Projeyi derleyin (`Build > Make Project`).
-5.  Uygulamayı bir cihaza yüklemek için `Run 'app'` komutunu çalıştırın.
+### 4. ESP32 Tarafından Beklenenler
+- **BLE Advertiser Çözümleme:**
+    - `"DOORSYS|"` ön ekine sahip paketleri dinlemeli.
+    - Gelen verinin ilk 16 byte'ını **IV** olarak, geri kalanını şifreli veri olarak almalı.
+    - Veritabanındaki her bir `BLE_KEY` ile bu veriyi `AES/CBC/PKCS5Padding` kullanarak çözmeyi denemeli.
+- **GATT Sunucusu:**
+    - `ADD_RESIDENT` komutunu alacak bir BLE GATT servisi ve karakteristiği sunmalı.
+    - Gelen komuttaki `OWNER_TOKEN`'ı, kendi `master_key`'i ile **HMAC imzasını doğrulayarak** kontrol etmeli.
+    - İmza geçerliyse, komuttaki `QR_DATA`'yı ayrıştırarak yeni kullanıcıyı veritabanına kaydetmeli.
+    - İşlem sonucunu (ACK/NACK) bir bildirim (notification) ile Android uygulamasına geri göndermeli.
