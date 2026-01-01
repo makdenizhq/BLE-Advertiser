@@ -1,18 +1,28 @@
 package com.example.bleadvertiser
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.bluetooth.le.AdvertiseSettings
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
+
+    private val NOTIFICATION_CHANNEL_ID = "GeofenceChannel"
+    private val GEOFENCE_ENTER_NOTIFICATION_ID = 5678
+    private val GEOFENCE_EXIT_NOTIFICATION_ID = 8765
 
     override fun onReceive(context: Context, intent: Intent) {
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
@@ -25,8 +35,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             val apartment = sharedPref.getString("APARTMENT", null)
             val signalId = sharedPref.getString("SIGNAL_ID", null)
             val bleKey = sharedPref.getString("BLE_KEY", null)
-            val txPowerPos = sharedPref.getInt("TX_POWER_POS", 0) // Kaydedilen ayarı oku
-            val advModePos = sharedPref.getInt("ADV_MODE_POS", 0) // Kaydedilen ayarı oku
+            val txPowerPos = sharedPref.getInt("TX_POWER_POS", 0)
+            val advModePos = sharedPref.getInt("ADV_MODE_POS", 0)
 
             if (apartment != null && signalId != null && bleKey != null) {
                 val plainText = "$apartment|$signalId"
@@ -39,13 +49,39 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                     putExtra("advMode", advMode)
                 }
                 context.startService(serviceIntent)
-                Toast.makeText(context, "Coğrafi alana girildi, yayın başlatılıyor...", Toast.LENGTH_SHORT).show()
+                sendNotification(context, "Coğrafi Alan Algılandı", "BLE yayını 3 dakikalığına başlatıldı.", GEOFENCE_ENTER_NOTIFICATION_ID)
 
                 Handler(Looper.getMainLooper()).postDelayed({
                     context.stopService(Intent(context, BleAdvertiserService::class.java))
-                    Toast.makeText(context, "3 dakika doldu, yayın durduruldu.", Toast.LENGTH_SHORT).show()
+                    sendNotification(context, "Yayın Durduruldu", "3 dakikalık otomatik yayın sona erdi.", GEOFENCE_EXIT_NOTIFICATION_ID)
                 }, 3 * 60 * 1000)
             }
+        }
+    }
+
+    private fun sendNotification(context: Context, title: String, message: String, notificationId: Int) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                "Coğrafi Alan Uyarıları",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_info) // Varsayılan sistem ikonu
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL) // Varsayılan ses ve titreşim
+            .setAutoCancel(true)
+            .build()
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            notificationManager.notify(notificationId, notification)
         }
     }
 

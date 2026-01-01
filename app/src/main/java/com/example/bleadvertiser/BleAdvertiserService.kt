@@ -1,5 +1,6 @@
 package com.example.bleadvertiser
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -17,7 +18,6 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
-import java.util.UUID
 
 class BleAdvertiserService : Service() {
 
@@ -44,7 +44,7 @@ class BleAdvertiserService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
         val bluetoothAdapter = bluetoothManager.adapter
         if (bluetoothAdapter != null) {
             advertiser = bluetoothAdapter.bluetoothLeAdvertiser
@@ -81,7 +81,7 @@ class BleAdvertiserService : Service() {
             .addManufacturerData(mfgId, payload)
             .build()
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED) {
             return
         }
 
@@ -102,7 +102,7 @@ class BleAdvertiserService : Service() {
 
     override fun onDestroy() {
         if (advertiser != null) {
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_ADVERTISE) == PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) == PackageManager.PERMISSION_GRANTED) {
                 advertiser?.stopAdvertising(advertiseCallback)
             }
         }
@@ -112,24 +112,22 @@ class BleAdvertiserService : Service() {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(channelId, "BLE Advertiser Service", NotificationManager.IMPORTANCE_DEFAULT)
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(serviceChannel)
         }
     }
 
     private fun createNotification(contentText: String): Notification {
-        val notificationIntent = Intent(this, AdvertisingActivity::class.java) // MainActivity -> AdvertisingActivity
+        val notificationIntent = Intent(this, AdvertisingActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
         return NotificationCompat.Builder(this, channelId).setContentTitle("BLE Advertiser").setContentText(contentText).setSmallIcon(android.R.drawable.stat_sys_data_bluetooth).setContentIntent(pendingIntent).build()
     }
 
     private fun updateNotification(text: String) {
         val notification = createNotification(text)
-        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                return
-            }
+        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            return
         }
         manager.notify(1, notification)
     }

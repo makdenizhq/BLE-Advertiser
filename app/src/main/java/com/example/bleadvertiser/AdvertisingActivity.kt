@@ -2,7 +2,6 @@ package com.example.bleadvertiser
 
 import android.Manifest
 import android.app.PendingIntent
-import android.bluetooth.BluetoothManager
 import android.bluetooth.le.AdvertiseSettings
 import android.content.Context
 import android.content.Intent
@@ -13,7 +12,6 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -58,15 +56,15 @@ class AdvertisingActivity : AppCompatActivity(), LocationListener {
         setupSpinners()
         loadSavedData()
         checkPermissionsAndStartGps()
-        displayBleMacAddress()
 
         binding.btnSave.setOnClickListener { saveDataAndGenerateQr() }
         binding.btnStart.setOnClickListener { startManualAdvertising() }
         binding.btnStop.setOnClickListener { stopAdvertising() }
+        binding.btnResetGeofence.setOnClickListener { resetGeofence() }
     }
 
     private fun checkPermissionsAndStartGps() {
-        val permissions = mutableListOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH_CONNECT)
+        val permissions = mutableListOf(Manifest.permission.ACCESS_FINE_LOCATION)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
@@ -132,6 +130,24 @@ class AdvertisingActivity : AppCompatActivity(), LocationListener {
         }
     }
 
+    private fun resetGeofence() {
+        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
+            addOnSuccessListener {
+                isGeofenceSet = false
+                getSharedPreferences("BleAdvertiserPrefs", MODE_PRIVATE).edit()
+                    .putBoolean("GEOFENCE_SET", false)
+                    .apply()
+                updateBroadcastButtons(false)
+                binding.tvGpsAccuracy.text = ""
+                Toast.makeText(this@AdvertisingActivity, "Coğrafi alan sıfırlandı. Yeni konum aranıyor.", Toast.LENGTH_SHORT).show()
+                startGpsUpdates()
+            }
+            addOnFailureListener {
+                Toast.makeText(this@AdvertisingActivity, "Sıfırlama başarısız.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun saveDataAndGenerateQr() {
         val apartment = binding.etApartment.text.toString()
         val name = binding.etName.text.toString()
@@ -180,7 +196,6 @@ class AdvertisingActivity : AppCompatActivity(), LocationListener {
         val txPower = getTxPowerFromPosition(txPowerPos)
         val advMode = getAdvModeFromPosition(advModePos)
 
-        // Ayarları otomatik yayın için de kaydet
         sharedPref.edit()
             .putInt("TX_POWER_POS", txPowerPos)
             .putInt("ADV_MODE_POS", advModePos)
@@ -194,7 +209,6 @@ class AdvertisingActivity : AppCompatActivity(), LocationListener {
         }
         startService(serviceIntent)
 
-        // Anlık durum bilgilerini güncelle
         binding.tvCurrentTxPower.text = "Geçerli Güç: ${binding.spinnerTxPower.selectedItem}"
         binding.tvCurrentAdvMode.text = "Geçerli Periyot: ${binding.spinnerAdvMode.selectedItem}"
         Toast.makeText(this, "Yayın başlatıldı.", Toast.LENGTH_SHORT).show()
@@ -245,20 +259,6 @@ class AdvertisingActivity : AppCompatActivity(), LocationListener {
         isGeofenceSet = sharedPref.getBoolean("GEOFENCE_SET", false)
     }
 
-    private fun displayBleMacAddress() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-            try {
-                val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-                val macAddress = bluetoothManager.adapter.address
-                binding.tvBleMacAddress.text = "BLE Adresi: $macAddress"
-            } catch (e: Exception) {
-                binding.tvBleMacAddress.text = "BLE Adresi: Alınamadı"
-            }
-        } else {
-            binding.tvBleMacAddress.text = "BLE Adresi: İzin gerekli"
-        }
-    }
-
     private fun getTxPowerFromPosition(position: Int): Int {
         return when (position) {
             0 -> AdvertiseSettings.ADVERTISE_TX_POWER_HIGH
@@ -296,7 +296,6 @@ class AdvertisingActivity : AppCompatActivity(), LocationListener {
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                 startGpsUpdates()
-                displayBleMacAddress() // İzin verildikten sonra MAC adresini tekrar göstermeyi dene
             } else {
                 Toast.makeText(this, "Tüm izinler uygulamanın doğru çalışması için gereklidir.", Toast.LENGTH_LONG).show()
                 binding.tvGpsStatus.text = "Durum: İzinler reddedildi."
