@@ -39,7 +39,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            app:cardBackgroundColor="?attr/colorErrorContainer"
+            app:cardBackgroundColor="?attr/colorError"
             app:layout_constraintTop_toBottomOf="@id/tvOwnerInfo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -53,13 +53,13 @@
                     android:layout_height="wrap_content"
                     android:text="Token Gerekli"
                     android:textStyle="bold"
-                    android:textColor="?attr/colorOnErrorContainer"/>
+                    android:textColor="?attr/colorOnError"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="Bu cihazı bir Owner olarak kullanmak için lütfen sistem yöneticisinden aldığınız Owner Token'ı yükleyin."
-                    android:textColor="?attr/colorOnErrorContainer"/>
+                    android:textColor="?attr/colorOnError"/>
                 <Button
                     android:id="@+id/btnScanTokenLocked"
                     android:layout_width="match_parent"
@@ -84,6 +84,40 @@
             tools:visibility="visible"
             app:constraint_referenced_ids="tvScopeTitle,tvScopeList,btnScanResidentQr,btnLoadResidentFromFile" />
 
+        <LinearLayout
+            android:id="@+id/layoutTokenControls"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/cardLocked"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <EditText
+                android:id="@+id/etOwnerToken"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Owner token"
+                android:inputType="text"
+                android:singleLine="true" />
+
+            <Button
+                android:id="@+id/btnSaveToken"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Token Kaydet" />
+
+            <Button
+                android:id="@+id/btnDeleteToken"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Token Sil" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/tvScopeTitle"
             android:layout_width="wrap_content"
@@ -91,8 +125,8 @@
             android:text="@string/owner_scope_title"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:layout_marginTop="32dp"
-            app:layout_constraintTop_toBottomOf="@id/tvOwnerInfo"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@id/layoutTokenControls"
             app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView
